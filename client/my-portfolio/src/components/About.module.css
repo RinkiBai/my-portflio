@@ -1,0 +1,76 @@
+.aboutSection {
+    padding: 4rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  
+  .aboutSection.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .title {
+    font-size: 2.75rem;
+    margin-bottom: 1.25rem;
+    color: #1e293b;
+    text-align: center;
+    font-weight: 700;
+  }
+  
+  .paragraph {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    color: #334155;
+    text-align: center;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.75;
+  }
+  
+  .toolkitTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: #1e293b;
+  }
+  
+  .toolkitList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+    padding: 0;
+    margin-top: 1rem;
+    list-style: none;
+  }
+  
+  .skillItem {
+    background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 500;
+    color: #0f172a;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: default;
+  }
+  
+  .skillItem:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  }
+  
+  .skillBullet {
+    color: #0ea5e9;
+    margin-right: 0.5rem;
+  }
+  
