@@ -45,7 +45,7 @@ const Contact = () => {
     setLoading(true);
 
     try {
-      const { data } = await axios.post('https://portfolio.onrender.com', {
+      const { data } = await axios.post('https://portfolio-mern-boij.onrender.com/api/contact', {
         ...formData,
         token: captchaToken,
       });
