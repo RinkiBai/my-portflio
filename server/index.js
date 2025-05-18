@@ -10,7 +10,17 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+// ✅ Allowed origins (local + Vercel frontend)
+const allowedOrigins = [
+  'http://localhost:5173', // local dev
+  'https://portfolio-mern-gct8.vercel.app' // deployed Vercel frontend
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+
 app.use(express.json());
 
 app.use('/api/projects', projectRoutes);

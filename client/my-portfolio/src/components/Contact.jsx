@@ -10,7 +10,7 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const captchaRef = useRef(null);
 
-  const SITE_KEY = '6LccBTsrAAAAAAt4qH7ApRwDKHdRLoJJS1ClN3o0'; // Your actual site key
+  const SITE_KEY = '6LdryD4rAAAAAAGQ6oIXgv5RsbusoUOJABDGiNvu'; // Your actual site key
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -45,7 +45,7 @@ const Contact = () => {
     setLoading(true);
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/contact', {
+      const { data } = await axios.post('https://portfolio.onrender.com', {
         ...formData,
         token: captchaToken,
       });
