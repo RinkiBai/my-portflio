@@ -1,0 +1,13 @@
+# Ignore dependencies and local build artifacts
+node_modules/
+.pnpm/
+.pnpm-store/
+dist/
+build/
+pnpm-lock.yaml
+
+# Ignore environment files
+.env
+server/.env
+client/.env
+client/my-portfolio/.env
