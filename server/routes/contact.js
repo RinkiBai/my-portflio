@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
   res.json({ message: 'Contact route is reachable!' });
 });
 
-// Submit contact form
+// Submit contact form with reCAPTCHA v3 verification
 router.post('/', async (req, res) => {
   const { name, email, message, token } = req.body;
 
@@ -21,29 +21,36 @@ router.post('/', async (req, res) => {
   if (!name || !email || !message) {
     return res.status(400).json({ success: false, message: 'All fields are required.' });
   }
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ success: false, message: 'Invalid email address.' });
   }
 
   if (!token) {
-    return res.status(400).json({ success: false, message: 'Captcha verification failed.' });
+    return res.status(400).json({ success: false, message: 'Captcha token is missing.' });
   }
 
   const secretKey = process.env.RECAPTCHA_SECRET_KEY;
 
   try {
+    // Verify token with Google
     const params = new URLSearchParams();
     params.append('secret', secretKey);
     params.append('response', token);
 
     const response = await axios.post('https://www.google.com/recaptcha/api/siteverify', params);
+    const { success, score, action } = response.data;
 
-    if (!response.data.success) {
-      return res.status(400).json({ success: false, message: 'Captcha verification failed.' });
+    // Check that verification was successful, score is high enough, and action matches
+    if (!success || score < 0.5 || action !== 'contact') {
+      return res.status(400).json({
+        success: false,
+        message: 'Captcha verification failed or suspicious activity detected.',
+      });
     }
 
-    // Save to DB
+    // Save contact message to DB
     const newContact = new Contact({ name, email, message });
     await newContact.save();
 
