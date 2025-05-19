@@ -10,7 +10,7 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const captchaRef = useRef(null);
 
-  const SITE_KEY = '6LdryD4rAAAAAAGQ6oIXgv5RsbusoUOJABDGiNvu'; // Your actual site key
+  const SITE_KEY = '6LdBnD8rAAAAANG7yttopYWSCHaBOEKJnDb8lKxd'; // Your actual site key
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 

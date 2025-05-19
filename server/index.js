@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
-  'http://localhost:5173',
+  'https://portfolio-mern-gct8-rinki-bais-projects.vercel.app',
   process.env.FRONTEND_URL, // pulls https://portfolio-mern-gct8.vercel.app from .env
 ];
 
