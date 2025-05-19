@@ -1,11 +1,9 @@
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
-import portfolioImg from '../assets/portfolio.png';
-import voyageAIImg from '../assets/voyageai-screenshot.png'; // Add your actual image
-import portfolioMERNImg from '../assets/portfolio-screenshot.png'; // Add your actual image
+import voyageAIImg from '../assets/voyageai-screenshot.png';
+import portfolioMERNImg from '../assets/portfolio-screenshot.png';
 import './Projects.css';
 
 const Projects = () => {
-  // Static array of GitHub projects with detailed descriptions
   const projects = [
     {
       id: 1,
@@ -13,7 +11,7 @@ const Projects = () => {
       description: "A modern travel planning application that helps users discover and organize their dream vacations with AI-powered recommendations.",
       technologies: ["React", "Node.js", "Express", "MongoDB", "TailwindCSS"],
       github: "https://github.com/RinkiBai/voyageai-client",
-      link: "https://voyageai-client-4e1k.vercel.app/", // Update with your actual demo link
+      link: "https://voyageai-client-4e1k.vercel.app/",
       image: voyageAIImg
     },
     {
@@ -22,7 +20,7 @@ const Projects = () => {
       description: "A full-stack developer portfolio built with the MERN stack, featuring project showcases, skills display, and contact form with backend functionality.",
       technologies: ["React", "Node.js", "Express", "MongoDB", "Material-UI"],
       github: "https://github.com/RinkiBai/portfolio-mern",
-      link: "https://portfolio-mern-gct8.vercel.app/projects/", // Update with your actual demo link
+      link: "https://portfolio-mern-gct8.vercel.app/projects/",
       image: portfolioMERNImg
     }
   ];
@@ -41,7 +39,11 @@ const Projects = () => {
                   src={project.image}
                   alt={project.title}
                   className="project-image"
-                  onError={(e) => e.currentTarget.src = portfolioImg}
+                  loading="lazy"
+                  onError={(e) =>
+                    (e.currentTarget.src =
+                      'https://via.placeholder.com/400x250?text=Image+Unavailable')
+                  }
                 />
               </div>
               <div className="project-content">
@@ -66,7 +68,7 @@ const Projects = () => {
                   >
                     <FaGithub /> View Code
                   </a>
-                  
+
                   {project.link && (
                     <a
                       href={project.link}
