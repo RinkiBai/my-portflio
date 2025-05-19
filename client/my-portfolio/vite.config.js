@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'http://localhost:5000', // Change this to match your backend server's URL
+      '/api': 'https://portfolio-mern-boij.onrender.com', // Change this to match your backend server's URL
     },
   },
 })
