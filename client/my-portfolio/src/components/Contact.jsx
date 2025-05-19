@@ -1,24 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import ReCAPTCHA from 'react-google-recaptcha';
+import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
-const Contact = () => {
+const SITE_KEY = '6LdBnD8rAAAAANG7yttopYWSCHaBOEKJnDb8lKxd'; // v3 site key
+
+const ContactForm = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [captchaToken, setCaptchaToken] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const captchaRef = useRef(null);
 
-  const SITE_KEY = '6LdBnD8rAAAAANG7yttopYWSCHaBOEKJnDb8lKxd'; // Your actual site key
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const isFormValid = () =>
     formData.name.trim() !== '' &&
     validateEmail(formData.email) &&
-    formData.message.trim() !== '' &&
-    captchaToken;
+    formData.message.trim() !== '';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,36 +26,34 @@ const Contact = () => {
     setSuccessMessage('');
   };
 
-  const handleCaptchaChange = (token) => {
-    setCaptchaToken(token);
-    setErrorMessage('');
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
 
     if (!isFormValid()) {
-      setErrorMessage('❌ Please fill all fields correctly and complete reCAPTCHA.');
+      setErrorMessage('❌ Please fill all fields correctly.');
+      return;
+    }
+
+    if (!executeRecaptcha) {
+      setErrorMessage('❌ reCAPTCHA not yet available. Please try again.');
       return;
     }
 
     setLoading(true);
 
     try {
+      const token = await executeRecaptcha('contact_form');
+
       const { data } = await axios.post('https://portfolio-mern-boij.onrender.com/api/contact', {
         ...formData,
-        token: captchaToken,
+        token,
       });
 
       if (data.success) {
         setSuccessMessage('✅ Your message has been sent successfully!');
         setFormData({ name: '', email: '', message: '' });
-        setCaptchaToken(null);
-        if (captchaRef.current) {
-          captchaRef.current.reset();
-        }
       } else {
         setErrorMessage(data.message || '❌ Failed to send message.');
       }
@@ -177,15 +174,6 @@ const Contact = () => {
           {formData.message.length}/500 characters
         </small>
 
-        <div style={{ marginTop: '1rem' }}>
-          <ReCAPTCHA
-            sitekey={SITE_KEY}
-            onChange={handleCaptchaChange}
-            onExpired={() => setCaptchaToken(null)}
-            ref={captchaRef}
-          />
-        </div>
-
         <button
           type="submit"
           disabled={loading || !isFormValid()}
@@ -223,5 +211,12 @@ const Contact = () => {
     </section>
   );
 };
+
+// Wrap ContactForm with reCAPTCHA provider
+const Contact = () => (
+  <GoogleReCaptchaProvider reCaptchaKey={SITE_KEY}>
+    <ContactForm />
+  </GoogleReCaptchaProvider>
+);
 
 export default Contact;
