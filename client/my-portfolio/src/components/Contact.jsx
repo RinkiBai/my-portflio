@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Contact from '../../../../server/models/Contact';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -61,7 +62,6 @@ const ContactForm = () => {
     }
   }, [successMessage, errorMessage]);
 
-  // Form JSX below remains same, no changes needed
   return (
     <section style={{ padding: '4rem 2rem', backgroundColor: '#f5f5f5', textAlign: 'center' }}>
       <h2 style={{ fontSize: '2rem', marginBottom: '2rem', color: '#333' }}>
@@ -80,11 +80,81 @@ const ContactForm = () => {
         }}
         noValidate
       >
-        {/* inputs same as before */}
-        {/* ... */}
-        {/* success/error message */}
+        <input
+          type="text"
+          name="name"
+          placeholder="Your Name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+          style={{
+            width: '100%',
+            padding: '0.75rem',
+            marginBottom: '1rem',
+            borderRadius: '5px',
+            border: '1px solid #ccc',
+            fontSize: '1rem',
+          }}
+        />
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Your Email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+          style={{
+            width: '100%',
+            padding: '0.75rem',
+            marginBottom: '1rem',
+            borderRadius: '5px',
+            border: '1px solid #ccc',
+            fontSize: '1rem',
+          }}
+        />
+
+        <textarea
+          name="message"
+          placeholder="Your Message"
+          rows="5"
+          value={formData.message}
+          onChange={handleChange}
+          required
+          style={{
+            width: '100%',
+            padding: '0.75rem',
+            marginBottom: '1rem',
+            borderRadius: '5px',
+            border: '1px solid #ccc',
+            fontSize: '1rem',
+          }}
+        ></textarea>
+
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            backgroundColor: loading ? '#888' : '#007BFF',
+            color: '#fff',
+            padding: '0.75rem 1.5rem',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            fontSize: '1rem',
+          }}
+        >
+          {loading ? 'Sending...' : 'Send Message'}
+        </button>
+
         {(successMessage || errorMessage) && (
-          <div style={{ marginTop: '1rem', fontWeight: 'bold', color: successMessage ? 'green' : 'red' }}>
+          <div
+            style={{
+              marginTop: '1rem',
+              fontWeight: 'bold',
+              color: successMessage ? 'green' : 'red',
+            }}
+          >
             {successMessage || errorMessage}
           </div>
         )}
@@ -93,4 +163,4 @@ const ContactForm = () => {
   );
 };
 
-export default ContactForm;
+export default Contact;
