@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Contact from '../../../../server/models/Contact';
 
-const ContactForm = () => {
+const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
