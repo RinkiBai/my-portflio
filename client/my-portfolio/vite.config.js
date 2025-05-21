@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
@@ -16,7 +17,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    sourcemap: true, // helpful for debugging
+    sourcemap: true,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -32,7 +33,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': '/src' // if you're using path aliases
+      '@': path.resolve(__dirname, 'src')
     }
   }
 })
