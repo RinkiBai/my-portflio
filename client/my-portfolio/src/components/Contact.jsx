@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Contact from '../../../../server/models/Contact';
 
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -34,9 +33,7 @@ const Contact = () => {
 
     setLoading(true);
     try {
-      const { data } = await axios.post('https://portfolio-mern-boij.onrender.com/api/contact', {
-        ...formData,
-      });
+      const { data } = await axios.post('https://portfolio-mern-boij.onrender.com/api/contact', formData);
 
       if (data.success) {
         setSuccessMessage('✅ Your message has been sent successfully!');
@@ -64,9 +61,7 @@ const Contact = () => {
 
   return (
     <section style={{ padding: '4rem 2rem', backgroundColor: '#f5f5f5', textAlign: 'center' }}>
-      <h2 style={{ fontSize: '2rem', marginBottom: '2rem', color: '#333' }}>
-        Contact Me
-      </h2>
+      <h2 style={{ fontSize: '2rem', marginBottom: '2rem', color: '#333' }}>Contact Me</h2>
 
       <form
         onSubmit={handleSubmit}
