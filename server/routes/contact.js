@@ -49,7 +49,12 @@ router.post(
   async (req, res) => {
     // Validate input
     const errors = validationResult(req);
+
+    // Log received data
+    console.log('Contact form received:', req.body);
+
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({ 
         success: false, 
         errors: errors.array(),
