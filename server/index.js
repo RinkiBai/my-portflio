@@ -11,6 +11,7 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
+  'https://portfolio-mern-xi.vercel.app', // ✅ Add this
   'https://portfolio-mern-3kihturi8-rinki-bais-projects.vercel.app',
   'https://portfolio-mern-boij.onrender.com',
   process.env.FRONTEND_URL, // pulls https://portfolio-mern-gct8.vercel.app from .env
