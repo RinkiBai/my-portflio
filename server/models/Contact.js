@@ -1,10 +1,28 @@
 import mongoose from 'mongoose';
 
-const ContactSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true },
-  message: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
+const contactSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Name is required'],
+      trim: true,
+      maxlength: 50,
+    },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      trim: true,
+      lowercase: true,
+    },
+    message: {
+      type: String,
+      required: [true, 'Message is required'],
+      maxlength: 1000,
+    },
+  },
+  {
+    timestamps: true, // adds createdAt and updatedAt automatically
+  }
+);
 
-export default mongoose.model('Contact', ContactSchema);
+export default mongoose.model('Contact', contactSchema);
