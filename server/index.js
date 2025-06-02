@@ -14,7 +14,7 @@ const allowedOrigins = [
   'https://portfolio-mern-xi.vercel.app',
   'https://portfolio-mern-hzajwrsb0-rinki-bais-projects.vercel.app',
   'https://portfolio-mern-boij.onrender.com',
-  'http://localhost:3000', // Local development
+  'http://localhost:5000', // Local development
   process.env.FRONTEND_URL // From environment variables
 ];
 
