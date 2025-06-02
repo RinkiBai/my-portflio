@@ -47,16 +47,17 @@ const Contact = () => {
     } catch (error) {
       console.error('Submission error:', error);
 
-      if (error.response?.data?.errors) {
+      if (error?.response && Array.isArray(error.response.data?.errors)) {
         const validationMessages = error.response.data.errors
           .map((err) => err.msg)
           .join(', ');
         toast.error(`Validation errors: ${validationMessages}`);
       } else {
         toast.error(
-          error.response?.data?.message || error.message || '❌ Failed to send message. Please try again.'
+          error?.response?.data?.message || error?.message || '❌ Failed to send message. Please try again.'
         );
       }
+      
     }
   };
 
