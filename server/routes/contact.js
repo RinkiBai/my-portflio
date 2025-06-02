@@ -10,23 +10,28 @@ dotenv.config();
 
 const router = express.Router();
 
-// Rate limiting (100 requests per 15 minutes)
+// Rate limiting: 100 requests per 15 minutes per IP
 const contactLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
-  message: 'Too many contact attempts from this IP, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many contact attempts from this IP. Please try again later.',
+  },
 });
 
-// Health check
+// Health check route
 router.get('/', (req, res) => {
-  res.json({
+  res.status(200).json({
     status: 'healthy',
-    message: 'Contact route is working!',
+    message: 'Contact route is operational',
     timestamp: new Date().toISOString(),
   });
 });
 
-// Submit contact form
+// Contact form submission handler
 router.post(
   '/',
   contactLimiter,
@@ -34,31 +39,33 @@ router.post(
     body('name')
       .trim()
       .isLength({ min: 2, max: 50 })
-      .withMessage('Name must be between 2-50 characters')
+      .withMessage('Name must be between 2 and 50 characters.')
       .escape(),
-    body('email').trim().isEmail().withMessage('Invalid email address').normalizeEmail(),
+
+    body('email')
+      .trim()
+      .isEmail()
+      .withMessage('Invalid email address.')
+      .normalizeEmail(),
+
     body('message')
       .trim()
       .isLength({ min: 10, max: 1000 })
-      .withMessage('Message must be between 10-1000 characters'),
+      .withMessage('Message must be between 10 and 1000 characters.'),
   ],
   async (req, res) => {
     const errors = validationResult(req);
 
-    console.log('Contact form received:', req.body);
-
     if (!errors.isEmpty()) {
-      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
-        errors: errors.array(),
         message: 'Validation failed',
+        errors: errors.array(),
       });
     }
 
     const { name, email, message } = req.body;
 
-    // Sanitize HTML content for message and name
     const sanitizedMessage = sanitizeHtml(message, {
       allowedTags: [],
       allowedAttributes: {},
@@ -78,13 +85,16 @@ router.post(
 
       await newContact.save();
 
-      sendContactEmail({ name: sanitizedName, email, message: sanitizedMessage }).catch(
-        (emailError) => {
-          console.error('Email sending failed:', emailError);
-        }
+      // Send email (non-blocking)
+      sendContactEmail({
+        name: sanitizedName,
+        email,
+        message: sanitizedMessage,
+      }).catch((emailErr) =>
+        console.error('Failed to send contact email:', emailErr)
       );
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: 'Message received successfully!',
         data: {
@@ -100,7 +110,7 @@ router.post(
         timestamp: new Date().toISOString(),
       });
 
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: 'Internal server error. Please try again later.',
         error: process.env.NODE_ENV === 'development' ? error.message : undefined,
