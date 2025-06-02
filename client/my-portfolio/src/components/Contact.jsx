@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Define validation schema with Zod
+// Validation schema with Zod
 const contactSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
   email: z.string().email({ message: 'Invalid email address' }),
@@ -34,7 +34,7 @@ const Contact = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          withCredentials: true,
+          withCredentials: true, // Only if your backend needs cookies/session
         }
       );
 
@@ -47,9 +47,10 @@ const Contact = () => {
     } catch (error) {
       console.error('Submission error:', error);
 
-      if (error?.response && Array.isArray(error.response.data?.errors)) {
+      // If backend sends validation errors as array
+      if (error?.response?.data?.errors && Array.isArray(error.response.data.errors)) {
         const validationMessages = error.response.data.errors
-          .map((err) => err.msg)
+          .map((err) => err.msg || err.message)
           .join(', ');
         toast.error(`Validation errors: ${validationMessages}`);
       } else {
@@ -57,12 +58,11 @@ const Contact = () => {
           error?.response?.data?.message || error?.message || '❌ Failed to send message. Please try again.'
         );
       }
-      
     }
   };
 
   return (
-    <section className="contact-section">
+    <section className="contact-section" aria-label="Contact form section">
       <h2>Contact Me</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -73,6 +73,7 @@ const Contact = () => {
             placeholder="Your Name"
             aria-invalid={errors.name ? 'true' : 'false'}
             className={errors.name ? 'input-error' : ''}
+            autoComplete="name"
           />
           {errors.name && (
             <p className="error-message" role="alert">
@@ -88,6 +89,7 @@ const Contact = () => {
             placeholder="Your Email"
             aria-invalid={errors.email ? 'true' : 'false'}
             className={errors.email ? 'input-error' : ''}
+            autoComplete="email"
           />
           {errors.email && (
             <p className="error-message" role="alert">
@@ -100,7 +102,7 @@ const Contact = () => {
           <textarea
             {...register('message')}
             placeholder="Your Message"
-            rows="5"
+            rows={5}
             aria-invalid={errors.message ? 'true' : 'false'}
             className={errors.message ? 'input-error' : ''}
           />
@@ -111,7 +113,7 @@ const Contact = () => {
           )}
         </div>
 
-        <button type="submit" disabled={isSubmitting}>
+        <button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
           {isSubmitting ? (
             <>
               <span className="spinner" aria-hidden="true" />
@@ -158,6 +160,7 @@ const Contact = () => {
           border: 1px solid #ccc;
           font-size: 1rem;
           transition: border 0.3s ease;
+          font-family: inherit;
         }
 
         .input-error {
