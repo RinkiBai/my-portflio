@@ -4,11 +4,10 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-
   "scripts": {
     "start": "node index.js",
-  "build": "echo 'No build step required for Node.js server' && exit 0",
-  "render-build": "pnpm install --frozen-lockfile --shamefully-hoist && pnpm run build"
+    "build": "echo 'No build step required for Node.js server' && exit 0",
+    "render-build": "pnpm install --frozen-lockfile --shamefully-hoist && pnpm run build"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +18,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "html-to-text": "^9.0.5",
     "mongoose": "^8.14.2",
-    "nodemailer": "^7.0.3"
+    "nodemailer": "^7.0.3",
+    "sanitize-html": "^2.17.0"
   }
 }
