@@ -2,15 +2,15 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { body, validationResult } from 'express-validator';
 import rateLimit from 'express-rate-limit';
+import sanitizeHtml from 'sanitize-html';
 import Contact from '../models/Contact.js';
 import { sendContactEmail } from '../utils/sendEmail.js';
-import sanitizeHtml from 'sanitize-html';
 
 dotenv.config();
 
 const router = express.Router();
 
-// Rate limiting: 100 requests per 15 minutes per IP
+// --- Rate Limiting: 100 requests per 15 minutes ---
 const contactLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -22,7 +22,7 @@ const contactLimiter = rateLimit({
   },
 });
 
-// Health check route
+// --- Health Check Route ---
 router.get('/', (req, res) => {
   res.status(200).json({
     status: 'healthy',
@@ -31,7 +31,7 @@ router.get('/', (req, res) => {
   });
 });
 
-// Contact form submission handler
+// --- Contact Submission Route ---
 router.post(
   '/',
   contactLimiter,
@@ -66,17 +66,19 @@ router.post(
 
     const { name, email, message } = req.body;
 
-    const sanitizedMessage = sanitizeHtml(message, {
-      allowedTags: [],
-      allowedAttributes: {},
-    });
+    // Sanitize inputs to prevent XSS
+    const sanitizedName = sanitizeHtml(name, { allowedTags: [], allowedAttributes: {} });
+    const sanitizedMessage = sanitizeHtml(message, { allowedTags: [], allowedAttributes: {} });
 
-    const sanitizedName = sanitizeHtml(name, {
-      allowedTags: [],
-      allowedAttributes: {},
-    });
+    if (!sanitizedName || !email || !sanitizedMessage) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required.',
+      });
+    }
 
     try {
+      // Save to DB
       const newContact = new Contact({
         name: sanitizedName,
         email,
@@ -85,14 +87,14 @@ router.post(
 
       await newContact.save();
 
-      // Send email (non-blocking)
+      // Send email notification (non-blocking)
       sendContactEmail({
         name: sanitizedName,
         email,
         message: sanitizedMessage,
-      }).catch((emailErr) =>
-        console.error('Failed to send contact email:', emailErr)
-      );
+      }).catch((emailErr) => {
+        console.error('❌ Failed to send contact email:', emailErr);
+      });
 
       return res.status(200).json({
         success: true,
@@ -103,12 +105,16 @@ router.post(
         },
       });
     } catch (error) {
-      console.error('Contact submission error:', {
-        error: error.message,
-        stack: error.stack,
-        body: req.body,
-        timestamp: new Date().toISOString(),
-      });
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Contact submission error:', {
+          error: error.message,
+          stack: error.stack,
+          body: req.body,
+          timestamp: new Date().toISOString(),
+        });
+      } else {
+        console.error('Contact submission error:', error.message);
+      }
 
       return res.status(500).json({
         success: false,
