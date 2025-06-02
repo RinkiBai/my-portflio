@@ -14,15 +14,15 @@ const router = express.Router();
 const contactLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
-  message: 'Too many contact attempts from this IP, please try again later'
+  message: 'Too many contact attempts from this IP, please try again later',
 });
 
 // Health check
 router.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'healthy',
     message: 'Contact route is working!',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -36,78 +36,74 @@ router.post(
       .isLength({ min: 2, max: 50 })
       .withMessage('Name must be between 2-50 characters')
       .escape(),
-    body('email')
-      .trim()
-      .isEmail()
-      .withMessage('Invalid email address')
-      .normalizeEmail(),
+    body('email').trim().isEmail().withMessage('Invalid email address').normalizeEmail(),
     body('message')
       .trim()
       .isLength({ min: 10, max: 1000 })
-      .withMessage('Message must be between 10-1000 characters')
+      .withMessage('Message must be between 10-1000 characters'),
   ],
   async (req, res) => {
-    // Validate input
     const errors = validationResult(req);
 
-    // Log received data
     console.log('Contact form received:', req.body);
 
     if (!errors.isEmpty()) {
       console.log('Validation errors:', errors.array());
-      return res.status(400).json({ 
-        success: false, 
+      return res.status(400).json({
+        success: false,
         errors: errors.array(),
-        message: 'Validation failed'
+        message: 'Validation failed',
       });
     }
 
-    // Sanitize HTML content
     const { name, email, message } = req.body;
+
+    // Sanitize HTML content for message and name
     const sanitizedMessage = sanitizeHtml(message, {
       allowedTags: [],
-      allowedAttributes: {}
+      allowedAttributes: {},
+    });
+
+    const sanitizedName = sanitizeHtml(name, {
+      allowedTags: [],
+      allowedAttributes: {},
     });
 
     try {
-      // Save to database
-      const newContact = new Contact({ 
-        name: sanitizeHtml(name),
+      const newContact = new Contact({
+        name: sanitizedName,
         email,
-        message: sanitizedMessage
+        message: sanitizedMessage,
       });
+
       await newContact.save();
 
-      // Send email (non-blocking)
-      sendContactEmail({ name, email, message: sanitizedMessage })
-        .catch(emailError => {
+      sendContactEmail({ name: sanitizedName, email, message: sanitizedMessage }).catch(
+        (emailError) => {
           console.error('Email sending failed:', emailError);
-          // Don't fail the request if email fails
-        });
+        }
+      );
 
-      res.status(200).json({ 
-        success: true, 
+      res.status(200).json({
+        success: true,
         message: 'Message received successfully!',
         data: {
           id: newContact._id,
-          timestamp: newContact.createdAt
-        }
+          timestamp: newContact.createdAt,
+        },
       });
-
     } catch (error) {
       console.error('Contact submission error:', {
         error: error.message,
         stack: error.stack,
         body: req.body,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
-      res.status(500).json({ 
-        success: false, 
+      res.status(500).json({
+        success: false,
         message: 'Internal server error. Please try again later.',
-        error: process.env.NODE_ENV === 'development' 
-          ? error.message 
-          : undefined
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
       });
     }
   }
