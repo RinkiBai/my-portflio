@@ -26,7 +26,12 @@ router.post('/', async (req, res) => {
   try {
     const newContact = new Contact({ name, email, message });
     await newContact.save();
+
+    console.log('Saving contact successful');
+
     await sendContactEmail({ name, email, message });
+
+    console.log('Email sent successfully');
 
     res.status(200).json({ 
       success: true, 
@@ -36,7 +41,7 @@ router.post('/', async (req, res) => {
     console.error('Contact form error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error. Please try again later.' 
+      message: error.message || 'Server error. Please try again later.' 
     });
   }
 });
