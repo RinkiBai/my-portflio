@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,9 +8,9 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // Define validation schema with Zod
 const contactSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-  email: z.string().email({ message: "Invalid email address" }),
-  message: z.string().min(10, { message: "Message must be at least 10 characters" })
+  name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
+  email: z.string().email({ message: 'Invalid email address' }),
+  message: z.string().min(10, { message: 'Message must be at least 10 characters' }),
 });
 
 const Contact = () => {
@@ -25,6 +25,8 @@ const Contact = () => {
 
   const onSubmit = async (data) => {
     try {
+      console.log('Sending contact data:', data);
+
       const response = await axios.post(
         'https://portfolio-mern-boij.onrender.com/api/contact',
         data,
@@ -44,11 +46,17 @@ const Contact = () => {
       }
     } catch (error) {
       console.error('Submission error:', error);
-      toast.error(
-        error.response?.data?.message || 
-        error.message || 
-        '❌ Failed to send message. Please try again.'
-      );
+
+      if (error.response?.data?.errors) {
+        const validationMessages = error.response.data.errors
+          .map((err) => err.msg)
+          .join(', ');
+        toast.error(`Validation errors: ${validationMessages}`);
+      } else {
+        toast.error(
+          error.response?.data?.message || error.message || '❌ Failed to send message. Please try again.'
+        );
+      }
     }
   };
 
@@ -62,7 +70,8 @@ const Contact = () => {
             {...register('name')}
             type="text"
             placeholder="Your Name"
-            aria-invalid={errors.name ? "true" : "false"}
+            aria-invalid={errors.name ? 'true' : 'false'}
+            className={errors.name ? 'input-error' : ''}
           />
           {errors.name && (
             <p className="error-message" role="alert">
@@ -76,7 +85,8 @@ const Contact = () => {
             {...register('email')}
             type="email"
             placeholder="Your Email"
-            aria-invalid={errors.email ? "true" : "false"}
+            aria-invalid={errors.email ? 'true' : 'false'}
+            className={errors.email ? 'input-error' : ''}
           />
           {errors.email && (
             <p className="error-message" role="alert">
@@ -90,7 +100,8 @@ const Contact = () => {
             {...register('message')}
             placeholder="Your Message"
             rows="5"
-            aria-invalid={errors.message ? "true" : "false"}
+            aria-invalid={errors.message ? 'true' : 'false'}
+            className={errors.message ? 'input-error' : ''}
           />
           {errors.message && (
             <p className="error-message" role="alert">
@@ -117,13 +128,13 @@ const Contact = () => {
           background-color: #f5f5f5;
           text-align: center;
         }
-        
+
         h2 {
           font-size: 2rem;
           margin-bottom: 2rem;
           color: #333;
         }
-        
+
         form {
           display: flex;
           flex-direction: column;
@@ -132,26 +143,31 @@ const Contact = () => {
           max-width: 600px;
           margin: 0 auto;
         }
-        
+
         .form-group {
           width: 100%;
           margin-bottom: 1rem;
         }
-        
-        input, textarea {
+
+        input,
+        textarea {
           width: 100%;
           padding: 0.75rem;
           border-radius: 5px;
-          border: 1px solid ${errors ? '#ff4444' : '#ccc'};
+          border: 1px solid #ccc;
           font-size: 1rem;
           transition: border 0.3s ease;
         }
-        
+
+        .input-error {
+          border-color: #ff4444 !important;
+        }
+
         textarea {
           resize: vertical;
           min-height: 120px;
         }
-        
+
         button {
           background-color: ${isSubmitting ? '#888' : '#007BFF'};
           color: #fff;
@@ -165,26 +181,28 @@ const Contact = () => {
           align-items: center;
           gap: 0.5rem;
         }
-        
+
         .error-message {
           color: #ff4444;
           margin-top: 0.25rem;
           text-align: left;
           font-size: 0.875rem;
         }
-        
+
         .spinner {
           display: inline-block;
           width: 1rem;
           height: 1rem;
-          border: 2px solid rgba(255,255,255,0.3);
+          border: 2px solid rgba(255, 255, 255, 0.3);
           border-radius: 50%;
           border-top-color: #fff;
           animation: spin 1s ease-in-out infinite;
         }
-        
+
         @keyframes spin {
-          to { transform: rotate(360deg); }
+          to {
+            transform: rotate(360deg);
+          }
         }
       `}</style>
     </section>
