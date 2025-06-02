@@ -10,20 +10,37 @@ dotenv.config();
 
 const app = express();
 
-// Enhanced CORS Configuration
+// Allowed origins array
+const allowedOrigins = [
+  'https://portfolio-mern-xi.vercel.app',
+  'https://portfolio-mern-boij.onrender.com',
+  'http://localhost:3000',
+  'http://localhost:5000',
+  process.env.FRONTEND_URL
+];
+
+// Regex to match all Vercel preview deployments like portfolio-mern-xxxx.vercel.app
+const vercelPreviewRegex = /^https:\/\/portfolio-mern-[a-z0-9-]+\.vercel\.app$/;
+
 const corsOptions = {
-  origin: [
-    'https://portfolio-mern-xi.vercel.app',
-    'https://portfolio-mern-*.vercel.app', // Wildcard for all Vercel preview deployments
-    'https://portfolio-mern-boij.onrender.com',
-    'http://localhost:3000', // Frontend development
-    'http://localhost:5000', // Backend development
-    process.env.FRONTEND_URL // From environment variables
-  ],
+  origin: function(origin, callback) {
+    if (!origin) {
+      // Allow requests with no origin (like curl or Postman)
+      return callback(null, true);
+    }
+    if (
+      allowedOrigins.includes(origin) || 
+      vercelPreviewRegex.test(origin)
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS policy: Origin ${origin} is not allowed.`));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true,
-  maxAge: 86400 // 24-hour preflight cache
+  maxAge: 86400 // 24 hours
 };
 
 // Apply CORS middleware
@@ -39,7 +56,7 @@ app.use(express.json());
 app.use('/api/projects', projectRoutes);
 app.use('/api/contact', contactRoutes);
 
-// Enhanced health check endpoint
+// Health check endpoint
 app.get(['/', '/health'], (req, res) => {
   res.status(200).json({
     status: 'healthy',
@@ -50,7 +67,7 @@ app.get(['/', '/health'], (req, res) => {
   });
 });
 
-// Robust MongoDB connection
+// MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -60,7 +77,7 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('MongoDB connected successfully'))
 .catch(err => {
   console.error('MongoDB connection error:', err);
-  process.exit(1); // Exit if DB connection fails
+  process.exit(1);
 });
 
 // Server startup
