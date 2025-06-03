@@ -5,25 +5,27 @@ import mongoose from 'mongoose';
 import projectRoutes from './routes/projects.js';
 import contactRoutes from './routes/contact.js';
 
+// Load env variables
 dotenv.config();
 
 const app = express();
 
-// --- Allowed Origins ---
+// Allowed Origins
 const allowedOrigins = [
   'https://portfolio-mern-xi.vercel.app',
   'https://portfolio-mern-boij.onrender.com',
+  'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:5000',
-  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL
 ];
 
-// Allow all preview deployments on Vercel (e.g., https://portfolio-mern-abc123.vercel.app)
+// Regex for preview Vercel deployments
 const vercelPreviewRegex = /^https:\/\/portfolio-mern.*\.vercel\.app$/;
 
-// --- CORS Configuration ---
+// CORS Configuration
 const corsOptions = {
-  origin: (origin, callback) => {
+  origin: function (origin, callback) {
     console.log('🌐 Request Origin:', origin);
     if (!origin || allowedOrigins.includes(origin) || vercelPreviewRegex.test(origin)) {
       callback(null, true);
@@ -36,20 +38,18 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true,
   optionsSuccessStatus: 200,
-  maxAge: 86400, // Cache preflight for 24 hours
+  maxAge: 86400,
 };
 
+// Middleware
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Preflight support
-
-// --- Middleware ---
 app.use(express.json({ limit: '1mb' }));
 
-// --- Routes ---
+// API Routes
 app.use('/api/projects', projectRoutes);
 app.use('/api/contact', contactRoutes);
 
-// --- Health Check Route ---
+// Health Check Route
 app.get(['/', '/health'], (req, res) => {
   res.status(200).json({
     status: 'healthy',
@@ -60,12 +60,10 @@ app.get(['/', '/health'], (req, res) => {
   });
 });
 
-// --- MongoDB Connection ---
+// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  retryWrites: true,
-  w: 'majority',
 })
 .then(() => console.log('✅ MongoDB connected successfully'))
 .catch((err) => {
@@ -73,13 +71,13 @@ mongoose.connect(process.env.MONGO_URI, {
   process.exit(1);
 });
 
-// --- Start Server ---
+// Start Server
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
 });
 
-// --- Unhandled Rejections ---
+// Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
   console.error('🔥 Unhandled Rejection:', err.message);
   server.close(() => process.exit(1));
