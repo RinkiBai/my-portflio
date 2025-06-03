@@ -17,7 +17,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:5000',
-  process.env.FRONTEND_URL
+  process.env.FRONTEND_URL,
 ];
 
 // Regex for preview Vercel deployments
@@ -60,16 +60,15 @@ app.get(['/', '/health'], (req, res) => {
   });
 });
 
+// ✅ Fix: `.then()` was incorrectly placed outside `.connect()`
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ MongoDB connected successfully'))
-.catch((err) => {
-  console.error('❌ MongoDB connection error:', err.message);
-  process.exit(1);
-});
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB connected successfully'))
+  .catch((err) => {
+    console.error('❌ MongoDB connection error:', err.message);
+    process.exit(1);
+  });
 
 // Start Server
 const PORT = process.env.PORT || 5000;
