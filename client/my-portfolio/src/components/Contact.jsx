@@ -23,12 +23,15 @@ const Contact = () => {
     resolver: zodResolver(contactSchema),
   });
 
+  // Read backend base URL from environment variable with fallback
+  const backendUrl = import.meta.env.VITE_API_BASE_URL || 'https://portfolio-mern-boij.onrender.com';
+
   const onSubmit = async (data) => {
     try {
       console.log('Sending contact data:', data);
 
       const response = await axios.post(
-        'https://portfolio-mern-boij.onrender.com/api/contact',
+        `${backendUrl}/api/contact`,
         data,
         {
           headers: {
@@ -47,7 +50,6 @@ const Contact = () => {
     } catch (error) {
       console.error('Submission error:', error);
 
-      // If backend sends validation errors as array
       if (error?.response?.data?.errors && Array.isArray(error.response.data.errors)) {
         const validationMessages = error.response.data.errors
           .map((err) => err.msg || err.message)
